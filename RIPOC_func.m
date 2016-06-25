@@ -135,8 +135,8 @@ dx = dx * 47.0/M;
 theta1 = 360 * dy / height;
 theta2 = theta1 + 180;
 scale = 1/power(width,dx/width)
-figure;
-mesh(Pp);
+% figure;
+% mesh(Pp);
 
 %% 回転・拡大縮小量 を補正
 % 面倒だが角度には2つのパターンがある…
