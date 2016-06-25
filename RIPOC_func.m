@@ -1,4 +1,4 @@
-function [Xi mpeak] = RIPOC_func(IA,IB);
+function [Xi ,mpeak] = RIPOC_func(AI,BI)
 % 2016/6/25 changed
 % Input must be 256 * 256 monoculer image
 % IA:ref IB:compared
@@ -182,14 +182,14 @@ pyy1= pyy1/sum1;
 dx = width/2 - pxx1 + 1
 dy = height/2 - pyy1 + 1
 
-result = imtranslate(IB_recover1,[-dx, -dy]);
-imshow(abs(double(IA)-result),[0 255]);
-figure;
-imshow(result,[0 255]);
-figure;
-imshow(IA,[0 255]);
-figure;
-imshow(IB,[0 255]);
+% result = imtranslate(IB_recover1,[-dx, -dy]);
+% imshow(abs(double(IA)-result),[0 255]);
+% figure;
+% imshow(result,[0 255]);
+% figure;
+% imshow(IA,[0 255]);
+% figure;
+% imshow(IB,[0 255]);
 
 else
     
@@ -207,8 +207,8 @@ pyy2= pyy2/sum2;
 dx = width/2 - pxx2 + 1
 dy = height/2 - pyy2 + 1
 
-result=imtranslate(IB_recover2,[-dx, -dy]);
-imshow(abs(double(IA)-result),[0 255]);
+% result=imtranslate(IB_recover2,[-dx, -dy]);
+% imshow(abs(double(IA)-result),[0 255]);
 end
 
  Xi = [dx dy 1/scale theta];

@@ -1,6 +1,6 @@
 %% 625 for Experiment
 
-vidObj = VideoReader('speed10_down.MOV');
+vidObj = VideoReader('626EXP.wmv');
 vidHeight = vidObj.Height;
 vidWidth = vidObj.Width;
 s = struct('cdata',zeros(vidHeight,vidWidth,3,'uint8'),...
@@ -14,26 +14,28 @@ Wid = 256;
 Hei = 256;
 
 while hasFrame(vidObj)
-   s(k).cdata = imcrop(readFrame(vidObj),[ cx-Wid/2,cy-Hei/2,Wid-1,Hei-1]);
-
-%% See the Position
-%     crop = imcrop(Map.ans,[ cx-W/2,cy-H/2,W-1,H-1]);
-%     s(k).cdata = crop;
-    k = k+1;
+   s(k).cdata = rgb2gray( imcrop(readFrame(vidObj),[ cx-Wid/2,cy-Hei/2,Wid-1,Hei-1]) );
+   k = k+1;
 end
 
-% for k=200: 260
-% run('POC.m');
-% 
-% end
+Numframes = k;
 
+time = zeros(Numframes,1);
+val = zeros(Numframes,4,1);
+refnum = zeros(Numframes,2);
 
-time = zeros(100,1);
-zure = zeros(100,1);
-for i = 1 : 100
-    k=i+199;
-    POC;
-    zure(i)=dy;
+init = 1;
+RF = s(1).cdata;
+RefFrames(init) = RF; 
+
+for i = 1 : Numframes   
+    [Xi mpeak] = RIPOC_func(RF,s(i).cdata);
+    
+    if mpeak > 0.05
+        for j = 1 : 4
+            val(i,j) = Xi;
+            refnum(i) = 
+        end
     time(i)=i/vidObj.FrameRate;
     
 end
