@@ -5,6 +5,12 @@ function [Xi ,mpeak] = RIPOC_func(AI,BI)
 % Xi = [ x,y,1/scale,theta ]
 % mpeak = mutching peak
 
+%% Initialize
+Xi = [0 0 0 0];
+mpeak = 0;
+
+
+
 %% ƒTƒCƒYŒˆ’è
  width = 256;
  height = 256;
@@ -115,9 +121,14 @@ Pp = fftshift(ifft2(Ap.*Bp));
 px=y;
 py=x(y);
 
+if mx < 0.035
+    return
+end
+
 %% Bilinear•âŠÔ
-if px == 0 || py == 0
-    pxx = px; pyy = py;
+if px < 2 || py < 2 || px > 255 || py > 255
+    pxx = 1; pyy = 1; % exeption
+    return;
 else
 sum = Pp(py-1,px-1)+Pp(py,px-1)+Pp(py+1,px-1)+Pp(py-1,px)+Pp(py,px)+Pp(py+1,px)+Pp(py-1,px+1)+Pp(py,px+1)+Pp(py+1,px+1);
 

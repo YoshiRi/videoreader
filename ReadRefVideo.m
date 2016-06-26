@@ -1,6 +1,6 @@
 %% 625 for Experiment
 
-vidObj = VideoReader('626EXP.wmv');
+vidObj = VideoReader('627Hand.wmv');
 vidHeight = vidObj.Height;
 vidWidth = vidObj.Width;
 s = struct('cdata',zeros(vidHeight,vidWidth,3,'uint8'),...
@@ -63,7 +63,7 @@ for i = 1 : Numframes
 end
 
 %% showing
-for i = 1:270
+for i = 1:Numframes
 if val(i,4) > 180
     val(i,4) = val(i,4) - 360;
 end
@@ -74,10 +74,25 @@ time(find(time(:,1)==0),:) = [];
 refnum(find(refnum(:,1)==0),:) = [];
 
 
-%
-figure;
-plot(time,refnum);
-figure;
-plot(time,val(:,1),time,val(:,2),time,val(:,3),time,val(:,4))
+%% plot res
+figure(1);
+plot(time,refnum(:,1),time,refnum(:,2)*100);
+grid on;
+legend('refnum','peak * 100');
+xlabel('time[s]');ylabel('value')
 
-legend('dx','dy','scale','\theta');
+figure(2);
+plot(time,val(:,1),time,val(:,2),time,val(:,3),time,val(:,4))
+grid on;
+legend('dx','dy','1/scale','\theta');
+xlabel('time[s]');ylabel('image displacement')
+
+
+%%
+% [xi mpeak] = RIPOC_func(s(1).cdata,s(108).cdata);
+% Re = imresize(s(108).cdata,1/xi(3));
+% Re = imrotate(Re,xi(4));
+% Re = imtranslate(Re,[-xi(1), -xi(2)]);
+% Fused = imfuse(s(1).cdata,Re);
+% imshow(Fused);
+

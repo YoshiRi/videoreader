@@ -115,6 +115,12 @@ Pp = fftshift(ifft2(Ap.*Bp));
 px=y;
 py=x(y);
 
+if mx < 0.05
+    xi = [0 0 0 0]
+    mpeak = mx
+    return;
+end
+
 %% Bilinear•âŠÔ
 if px == 0 || py == 0
     pxx = px; pyy = py;
