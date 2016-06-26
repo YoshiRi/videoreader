@@ -19,7 +19,7 @@ while hasFrame(vidObj)
 end
 
 %% Put value
-Numframes = k - 1;
+Numframes = k;
 % initialize
 time = zeros(Numframes,1);
 val = zeros(Numframes,4,1);
@@ -29,7 +29,7 @@ RefFramenum = 1;
 RF = s(1).cdata;
 
 
-for i = 1 : Numframes
+for i = 1 : Numframes   
     % extract image displacement and peak value to evaluate the correctness
     [Xi mpeak] = RIPOC_func(RF,s(i).cdata);
     % hoge
@@ -62,22 +62,18 @@ for i = 1 : Numframes
     end
 end
 
-%% showing
 for i = 1:270
 if val(i,4) > 180
-    val(i,4) = val(i,4) - 360;
+    val(i,4) = val(i,4) - 360
 end
-end
-% cut additional data
-val(find(val(:,1)==0),:) = [];
-time(find(time(:,1)==0),:) = [];
-refnum(find(refnum(:,1)==0),:) = [];
 
-
-%
 figure;
 plot(time,refnum);
 figure;
 plot(time,val(:,1),time,val(:,2),time,val(:,3),time,val(:,4))
 
 legend('dx','dy','scale','\theta');
+% cut additional 
+val(find(val(:,1)==0),:) = []
+time(find(time(:,1)==0),:) = []
+

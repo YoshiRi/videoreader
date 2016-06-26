@@ -1,5 +1,5 @@
-function [Xi ,mpeak] = RIPOC_func(AI,BI)
-% 2016/6/25 changed
+function [Xi ,mpeak] = RIPOC_show(AI,BI)
+% 2016/6/27 changed
 % Input must be 256 * 256 monoculer image
 % IA:ref IB:compared
 % Xi = [ x,y,1/scale,theta ]
@@ -185,20 +185,25 @@ pyy1= pyy1/sum1;
 dx = width/2 - pxx1 + 1
 dy = height/2 - pyy1 + 1
 
-% result = imtranslate(IB_recover1,[-dx, -dy]);
-% imshow(abs(double(IA)-result),[0 255]);
-% figure;
-% imshow(result,[0 255]);
-% figure;
-% imshow(IA,[0 255]);
-% figure;
-% imshow(IB,[0 255]);
+figure;
+mesh(Pp1);
+title('Pp1');
+figure;
+
+result = imtranslate(IB_recover1,[-dx, -dy]);
+imshow(abs(double(IA)-result),[0 255]);
+figure;
+imshow(result,[0 255]);
+figure;
+imshow(IA,[0 255]);
+figure;
+imshow(IB,[0 255]);
 
 else
     
     mpeak = mx2;
     
-theta = theta2
+theta = theta2;
 sum2 = Pp2(py2-1,px2-1)+Pp2(py2,px2-1)+Pp2(py2+1,px2-1)+Pp2(py2-1,px2)+Pp2(py2,px2)+Pp2(py2+1,px2)+Pp2(py2-1,px2+1)+Pp2(py2,px2+1)+Pp2(py2+1,px2+1);
 
 pxx2 = ( Pp2(py2-1,px2-1)+Pp2(py2,px2-1)+Pp2(py2+1,px2-1) ) * (px2-1) + ( Pp2(py2-1,px2)+Pp2(py2,px2)+Pp2(py2+1,px2) ) * px2 + ( Pp2(py2-1,px2+1)+Pp2(py2,px2+1)+Pp2(py2+1,px2+1) )* (px2+1);
@@ -210,8 +215,18 @@ pyy2= pyy2/sum2;
 dx = width/2 - pxx2 + 1
 dy = height/2 - pyy2 + 1
 
-% result=imtranslate(IB_recover2,[-dx, -dy]);
-% imshow(abs(double(IA)-result),[0 255]);
+figure;
+mesh(Pp2);
+title('Pp2');
+figure;
+result = imtranslate(IB_recover2,[-dx, -dy]);
+imshow(abs(double(IA)-result),[0 255]);
+figure;
+imshow(result,[0 255]);
+figure;
+imshow(IA,[0 255]);
+figure;
+imshow(IB,[0 255]);
 end
 
  Xi = [dx dy 1/scale theta];
