@@ -1,6 +1,6 @@
 %% 625 for Experiment
 
-vidObj = VideoReader('627Hand.wmv');
+vidObj = VideoReader('626EXP.wmv');
 vidHeight = vidObj.Height;
 vidWidth = vidObj.Width;
 s = struct('cdata',zeros(vidHeight,vidWidth,3,'uint8'),...
@@ -84,7 +84,7 @@ xlabel('time[s]');ylabel('value')
 figure(2);
 plot(time,val(:,1),time,val(:,2),time,val(:,3),time,val(:,4))
 grid on;
-legend('dx','dy','1/scale','\theta');
+legend('dx','dy','\kappa','\theta','Location','best');
 xlabel('time[s]');ylabel('image displacement')
 
 
