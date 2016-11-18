@@ -49,9 +49,9 @@ for i = 1 : Numframes
             RF = s(i-1).cdata;
             for j = 1 : 4
                 val(i,j) = Xi(j);
-            refnum(i,1) = RefFramenum;
-            refnum(i,2) = mpeak;
             end
+            refnum(i,1) = RefFramenum;
+            refnum(i,2) = mpeak;    
         else % if update missed skip
             for j = 1 : 4
                 val(i,j) = val(i-1,j);
@@ -96,3 +96,78 @@ xlabel('time[s]');ylabel('image displacement')
 % Fused = imfuse(s(1).cdata,Re);
 % imshow(Fused);
 
+%% for making Vref 
+
+val_ref = zeros(Numframes,4,1);
+val_diff = zeros(Numframes-1,4);
+
+for i = 1:Numframes
+    if refnum(i,1) == 1
+        val_ref(i,:) = val(i,:);
+    else 
+        j = refnum(i,1);
+        val_ref(i,:) = val_ref(j,:) + val(i,:);
+    end
+% if refnum(i+1,1) == i 
+%     val_diff(i,:) = (val_ref(i+1,:) - [0,0,1,0] ) .* vidObj.FrameRate;
+% else
+%     val_diff(i,:) = (val_ref(i+1,:) - val_ref(i,:)) .* vidObj.FrameRate;
+% end
+end
+
+for i = 1:Numframes-1
+          val_diff(i,:) = (val_ref(i+1,:) - val_ref(i,:)) .* vidObj.FrameRate;
+end
+val_diff2 = diff(val_ref)*vidObj.FrameRate;
+val_diff2 = [val_diff];
+
+figure(3);
+plot(time,val_ref(:,1),time,val_ref(:,2),time,val_ref(:,3),time,val_ref(:,4))
+grid on;
+legend('dx','dy','\kappa','\theta','Location','best');
+xlabel('time[s]');ylabel('image displacement')
+
+
+figure(4);
+plot(time(1:Numframes-1,1),val_diff(:,1),time(1:Numframes-1,1),val_diff(:,2),time(1:Numframes-1,1),val_diff(:,3),time(1:Numframes-1,1),val_diff(:,4))
+grid on;
+legend('dx_{ref}','dy_{ref}','\kappa_{ref}','\theta_{ref}','Location','best');
+xlabel('time[s]');ylabel('$\frac{d}{dt}\xi_{ref}$','Interpreter','latex'); 
+
+%%
+% Low pass
+% N   = 100;        % FIR filter order
+% Fp  = 20e3;       % 20 kHz passband-edge frequency
+% Fs  = 96e3;       % 96 kHz sampling frequency
+% Rp  = 0.00057565; % Corresponds to 0.01 dB peak-to-peak ripple
+% Rst = 1e-4;       % Corresponds to 80 dB stopband attenuation
+% 
+% NUM = firceqrip(N,Fp/(Fs/2),[Rp Rst],'passedge'); % NUM = vector of coeffs
+% 
+% LP_FIR = dsp.FIRFilter('Numerator',NUM); % Or use NUM200 or NUM_MIN
+% 
+% val_diff() * LP_FIR
+% ïœêîÇÃê›íË
+a = 10;
+b = ones(1,10);
+LPval_diff = filter(b,a,val_diff);
+
+
+figure(5);
+plot(time(1:Numframes-1,1),LPval_diff(:,1),time(1:Numframes-1,1),LPval_diff(:,2),time(1:Numframes-1,1),LPval_diff(:,3),time(1:Numframes-1,1),LPval_diff(:,4))
+grid on;
+legend('dx_{ref}','dy_{ref}','\kappa_{ref}','\theta_{ref}','Location','best');
+xlabel('time[s]');ylabel('$\frac{d}{dt}\xi_{ref}$','Interpreter','latex'); 
+
+%% FFT
+L =200;
+Fs = vidObj.FrameRate;
+P2 = abs( fft(val_ref(1:L,2)) /L );
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+f = Fs*(0:(L/2))/L;
+figure;
+plot(f,P1)
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
