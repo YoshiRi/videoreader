@@ -9,8 +9,6 @@ function [Xi ,mpeak] = RIPOC_func(AI,BI)
 Xi = [0 0 0 0];
 mpeak = 0;
 
-
-
 %% ƒTƒCƒYŒˆ’è
  width = 256;
  height = 256;
