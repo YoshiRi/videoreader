@@ -137,7 +137,8 @@ dx = width/2 - pxx + 1;
 dy = height/2 - pyy + 1;
 
 %% Scale量の補正
-dx = dx /M;
+% dx = dx * 82/M;
+dx = dx * 47.0/M;
 
 %% 回転量には2つのピークが出現する
 theta1 = 360 * dy / height;
