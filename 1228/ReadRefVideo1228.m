@@ -96,7 +96,7 @@ legend('dx','dy','\kappa','\theta','Location','best');
 xlabel('time[s]');ylabel('image displacement')
 
 
-%% for making Vref 
+%% for making Reference and Vref 
 
 val_ref = zeros(Numframes,4,1);
 val_diff = zeros(Numframes-1,4);
@@ -246,7 +246,7 @@ dlmwrite('refdata1.txt',output);
 output2= horzcat(time(1:Numframes-1,1), refnum(1:Numframes-1,1),  val_ref(1:Numframes-1,1),val_ref(1:Numframes-1,2),val_ref(1:Numframes-1,3),val_ref(1:Numframes-1,4)   ,LPval_diff2(:,1),LPval_diff2(:,2),LPval_diff2(:,3),LPval_diff2(:,4));
 dlmwrite('refdata2.txt',output2); 
  
-%
+%%
   save('1228exp.mat');
   
  %%  Save as Img and Video
