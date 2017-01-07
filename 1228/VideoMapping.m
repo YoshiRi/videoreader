@@ -4,7 +4,7 @@
 % function Map = ImageOverWrite(s,val_ref)
 clear all;
 
-load('1228exp.mat');
+load('1228test107.mat');
 
 length = size(val_ref,1); % s—ñ‚Æ”z—ñ‚Ì’·‚³
 [height width] = size(s(1).cdata); % image size
@@ -34,7 +34,7 @@ Map = double(zeros(MHei +1,MWid + 1)); % Making a Map with a 1 line redundant ar
 %%  2: Map‚ğì‚é
 
 % write to video
-v = VideoWriter('Mapping1228long.avi');
+v = VideoWriter('Mapping.avi');
 v.FrameRate = 8; % Framerate
 open(v);
 

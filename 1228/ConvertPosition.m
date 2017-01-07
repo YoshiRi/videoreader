@@ -1,3 +1,5 @@
+% Compared Image coordinate to Reference Image coordinate
+
 function position = ConvertPosition(pose,val,width,height,xmin,ymin)
 % val : dx dy kappa theta :: kappa = 1/scale from RIPOC function
 % pose : [x y]
