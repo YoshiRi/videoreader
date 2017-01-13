@@ -1,0 +1,3 @@
+%% Debugging
+
+triu(ones(10),1)

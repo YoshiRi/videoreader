@@ -217,6 +217,11 @@ dy = height/2 - pyy2 + 1
 % imshow(abs(double(IA)-result),[0 255]);
 end
 
+if theta > 180
+    theta = theta - 360;
+elseif theta < -180
+    theta = theta +180;
+end
  Xi = [dx dy 1/scale theta];
 
 end
