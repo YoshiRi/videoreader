@@ -1,6 +1,6 @@
 %% Accurate Reference with Map test
 
-datalength = 50;
+datalength = 500;
 
 GrandTruth = zeros(datalength,4);
 
@@ -50,7 +50,7 @@ sum1 = (v-GrandTruth(2:datalength,4)).'*(v-GrandTruth(2:datalength,4));
 sum2 = (v2-GrandTruth(2:datalength,4)).'*(v2-GrandTruth(2:datalength,4));
 
 figure(3);
-bar([sum1,sum2],'grouped');
+bar(diag([sum1,sum2]),'stack');
 grid on;
 legend('Estimated with Full Map','Estimated with Neighbor Information','Location','Best')
 ylabel('total error')
@@ -89,20 +89,78 @@ sum1 = (w-GrandTruth(2:datalength,4)).'*(w-GrandTruth(2:datalength,4));
 sum2 = (w2-GrandTruth(2:datalength,4)).'*(w2-GrandTruth(2:datalength,4));
 
 figure(6);
-bar([sum1,sum2],'grouped');
+bar(diag([sum1,sum2]),'stack');
+% bar([sum1,sum2],'grouped');
 grid on;
 legend('Estimated with Full Map','Estimated with Neighbor Information','Location','Best')
 ylabel('total error')
 
 
 % 固有値を見てみた。 当然正
-eig(A)
-eig(A2)
+eig(A);
+eig(A2);
 
 %% 次はlog
 
-% data = GrandTruth(2:datalength,3);
-% ldata=log(data);
-% 
-% Map = remakemap(ldata);
-% nMap = Map.*(1+Noise(:,:,3));
+ data = GrandTruth(2:datalength,3);
+Map = remakemap_multiply(data);
+nMap = Map.*(1+Noise(:,:,3));
+nMap2 = Map+Noise(:,:,3);
+
+lnMap = log(nMap);
+lnMap(~isfinite(lnMap))=0;
+lnMap2 = log(nMap2);
+lnMap2(~isfinite(lnMap2))=0;
+
+
+[v, A]=  solve_Mapping(lnMap,wMap); % solved
+[v2 ,A2]=  solve_Mapping(lnMap,wMap2); % solved
+
+v=exp(v);
+v2=exp(v2);
+
+figure(7);
+plot(GrandTruth(2:datalength,3),'r--');
+hold on;
+plot(v,'b');
+plot(v2,'m-.');
+% plot(v3,'k:');
+grid on;
+hold off;
+legend('Ground Truth','Estimated with Full Map','Estimated with Neighbor Map')
+xlabel('iteration')
+ylabel('value')
+
+
+figure(8);
+plot(scale,abs(v-GrandTruth(2:datalength,3)),'b',scale,abs(v2-GrandTruth(2:datalength,3)),'m-.');
+grid on;
+legend('Estimated with Full Map','Estimated with Neighbor Information','Location','Best')
+xlabel('iteration')
+ylabel('absolute error')
+
+[w, A]=  solve_Mapping(lnMap2,wMap); % solved
+[w2 ,A2]=  solve_Mapping(lnMap2,wMap2); % solved
+
+w=exp(w);
+w2=exp(w2);
+
+figure(9);
+plot(GrandTruth(2:datalength,3),'r--');
+hold on;
+plot(w,'b');
+plot(w2,'m-.');
+% plot(v3,'k:');
+grid on;
+hold off;
+legend('Ground Truth','Estimated with Full Map','Estimated with Neighbor Map')
+xlabel('iteration')
+ylabel('value')
+
+
+figure(10);
+plot(scale,abs(w-GrandTruth(2:datalength,3)),'b',scale,abs(w2-GrandTruth(2:datalength,3)),'m-.');
+grid on;
+legend('Estimated with Full Map','Estimated with Neighbor Information','Location','Best')
+xlabel('iteration')
+ylabel('absolute error')

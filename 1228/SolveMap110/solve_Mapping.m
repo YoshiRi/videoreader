@@ -22,6 +22,4 @@ Bb = sum(BMap,1).' - sum(BMap,2);                 % cˆø‚­‰¡
 B= Bb(2:n);
 
 v = A\B;
-figure(6);
-plot(v);
 end

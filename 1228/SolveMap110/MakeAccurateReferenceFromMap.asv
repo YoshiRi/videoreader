@@ -1,67 +1,94 @@
 %% get accurate reference from map
 
 % Get whole map
-load('1228FullMap.mat');
+load('1228FullMapr.mat');
 
 %% Get value Map
 pmat = refnumMap(:,:,2); % get map 
 minpeak = 0.075;
 Bpmat = im2bw(pmat,minpeak);                        % Get binarized pmat
-Spmat = Bpmat.*pmat;                                      % Get sparse peakmat
+Spmat = Bpmat.*pmat;                                       % Get sparse peakmat
 
 figure(1);
 imshow(Bpmat);
-xlabel('Reference Image Number');
-ylabel('Compared Image Number');
+ylabel('Reference Image Number');
+xlabel('Compared Image Number');
 
-
+%% kuso syuusei
+time(n) = time(n-1)*2 - time(n-1);
  
  %% 1. solve theta equation
  T_val = zeros(size(valMap,1),4);                         % put the true value
+ nT_val = zeros(size(valMap,1),4);                         % put the unchi value
+ sT_val = zeros(size(valMap,1),4);
+ 
  CtaMap = valMap(:,:,4);                                     % get theta map
  rCtaMap = CtaMap .* Bpmat;                              % get theta map
+nMap = triu(ones(size(Bpmat)),1) - triu(ones(size(Bpmat)),2); % neighbor map
 
-% T_val(:,4) = solve_Mapping(rCtaMap,Bpmat);
-
-%%
-wMap = Bpmat;
-% åWêîçsóÒAÇÃåvéZ : MapÇÊÇË1Ç¬è¨Ç≥Ç¢
-n=size(wMap,1);
-A = zeros(n-1,n-1);
-% ëŒäpê¨ï™ÇÃåvéZ
-nwMap = wMap(1:n-1,2:n);
+T_val(2:n,4) = solve_Mapping(rCtaMap,Bpmat);
 figure(2);
-imshow(nwMap)
-diagA = diag(sum(nwMap,1).' + sum(nwMap,2));
-tri = wMap(1:n-2,3:n);
+plot(time,T_val(:,4));
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('Estimated Reference with FullMap')
+
+nT_val(2:n,4) = solve_Mapping(rCtaMap,nMap);
+figure(3);
+plot(time,nT_val(:,4),'r--');
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('Estimated Reference with Neighbor Information')
+
+figure(4);
+plot(time,T_val(:,4),'b',time,nT_val(:,4),'r--');
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('with Map Information','with Neighbor Information','Location','Best')
+
+sT_val(2:n,4) = solve_Mapping(rCtaMap,Spmat);
+figure(5);
+plot(time,sT_val(:,4));
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('Estimated Reference with FullMap')
+
+figure(6);
+plot(time,T_val(:,4),'b',time,nT_val(:,4),'r--',time,sT_val(:,4),'m-.');
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('with Map Information','with Neighbor Information','with weighted Map Information','Location','Best')
 
 
+%% 2. solve kappa equation
+KMap = valMap(:,:,3);                                        % get kappa map
+lKMap = log(KMap);                                            % make log scale map
+lKMap(~isfinite(lKMap))=0;
 
-%%
+rlKMap = lKMap.*BMap;                                      % make log scale map
 
-diagA = sum(wMap,1) - sum(wMap,2).';
-A =  wMap + diag(diagA) - wMap';
-% í«â¡ÇÃçSë©èåè
-alpha = zeros(1,size(A,1));
-alpha(1)=1;
-% çSë©èåèÇâ¡Ç¶ÇΩåWêîçsóÒ
-Aa= vertcat(A,alpha);
+lnkappa = solve_Mapping(lKMap,Bpmat);          % solve linear equation
+
+T_val(2:n,3) = exp(lnkappa);                                 % kappa 
+
+figure(7);
+plot(time,T_val(:,4));
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('Estimated Reference with FullMap')
 
 
+%% 3. solve translation equation
+TMap = valMap(:,:,1:2);
 
-
-% %% 2. solve kappa equation
-% KMap = valMap(:,:,3);                                        % get kappa map
-% lKMap = log(KMap);                                            % male log scale map
-% lnkappa = solve_Mapping(lKMap,Bpmat);          % solve linear equation
-% 
-% T_val(:,3) = exp(lnkappa);                                 % kappa 
-% 
-% %% 3. solve translation equation
-% TMap = valMap(:,:,1:2);
-% 
-% csMap = cosd(T_val(:,:,4)) .* T_val(:,:,3);
-% snMap = sind(T_val(:,:,4)) .* T_val(:,:,3);
+csMap = cosd(T_val(:,:,4)) .* T_val(:,:,3);
+snMap = sind(T_val(:,:,4)) .* T_val(:,:,3);
 % 
 % TrMapx = csMap .* TMap(:,:,1) + snMap.* TMap(:,:,2);
 % TrMapy = -snMap .* TMap(:,:,1) + csMap.* TMap(:,:,2);

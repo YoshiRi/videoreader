@@ -7,76 +7,151 @@ load('1228FullMapr.mat');
 pmat = refnumMap(:,:,2); % get map 
 minpeak = 0.075;
 Bpmat = im2bw(pmat,minpeak);                        % Get binarized pmat
-Spmat = Bpmat.*pmat;                                      % Get sparse peakmat
+Spmat = Bpmat.*pmat;                                       % Get sparse peakmat
 
 figure(1);
 imshow(Bpmat);
-xlabel('Reference Image Number');
-ylabel('Compared Image Number');
+ylabel('Reference Image Number');
+xlabel('Compared Image Number');
 
-
+%% kuso syuusei
+time(n) = time(n-1)*2 - time(n-1);
  
  %% 1. solve theta equation
  T_val = zeros(size(valMap,1),4);                         % put the true value
+ nT_val = zeros(size(valMap,1),4);                         % put the unchi value
+ sT_val = zeros(size(valMap,1),4);
+ 
  CtaMap = valMap(:,:,4);                                     % get theta map
  rCtaMap = CtaMap .* Bpmat;                              % get theta map
+nMap = triu(ones(size(Bpmat)),1) - triu(ones(size(Bpmat)),2); % neighbor map
 
-% T_val(:,4) = solve_Mapping(rCtaMap,Bpmat);
-
-%%
-wMap = Bpmat;
-% åWêîçsóÒAÇÃåvéZ : MapÇÊÇË1Ç¬è¨Ç≥Ç¢
-n=size(wMap,1);
-% ëŒäpê¨ï™ÇÃåvéZ
-nwMap = wMap(1:n-1,2:n);
+T_val(2:n,4) = solve_Mapping(rCtaMap,Bpmat);
 figure(2);
-imshow(nwMap)
-diagA = diag(sum(nwMap,1).' + sum(nwMap,2));
-tri = nwMap - diag(diag(nwMap));
+plot(time,T_val(:,4));
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('Estimated Reference with FullMap')
+
+nT_val(2:n,4) = solve_Mapping(rCtaMap,nMap);
 figure(3);
-imshow(tri);
+plot(time,nT_val(:,4),'r--');
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('Estimated Reference with Neighbor Information')
 
-A = -tri+diagA-tri.';
 figure(4);
-imshow(A);
+plot(time,T_val(:,4),'b',time,nT_val(:,4),'r--');
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('with Map Information','with Neighbor Information','Location','Best')
 
-% ÉxÉNÉgÉãBÇÃåvéZ
-BMap = wMap .* CtaMap;
-figure(5)
-imshow(BMap);
-Bb = sum(BMap,2) - sum(BMap,1).';
-B= Bb(2:n);
+sT_val(2:n,4) = solve_Mapping(rCtaMap,Spmat);
+figure(5);
+plot(time,sT_val(:,4));
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('Estimated Reference with FullMap')
 
-v = A\B;
 figure(6);
-plot(v);
-%%
+plot(time,T_val(:,4),'b',time,nT_val(:,4),'r--',time,sT_val(:,4),'m-.');
+xlabel('time [s]');
+ylabel('rotational ref [deg]');
+grid on;
+legend('with Map Information','with Neighbor Information','with weighted Map Information','Location','Best')
 
 
-% %% 2. solve kappa equation
-% KMap = valMap(:,:,3);                                        % get kappa map
-% lKMap = log(KMap);                                            % male log scale map
-% lnkappa = solve_Mapping(lKMap,Bpmat);          % solve linear equation
-% 
-% T_val(:,3) = exp(lnkappa);                                 % kappa 
-% 
-% %% 3. solve translation equation
-% TMap = valMap(:,:,1:2);
-% 
-% csMap = cosd(T_val(:,:,4)) .* T_val(:,:,3);
-% snMap = sind(T_val(:,:,4)) .* T_val(:,:,3);
-% 
-% TrMapx = csMap .* TMap(:,:,1) + snMap.* TMap(:,:,2);
-% TrMapy = -snMap .* TMap(:,:,1) + csMap.* TMap(:,:,2);
-% 
-% T_val(:,1) = solve_Mapping(TrMapx,Bpmat);          % solve linear equation
-% T_val(:,2) = solve_Mapping(TrMapy,Bpmat);          % solve linear equation
-% 
-% 
-% %% show the result
-% figure(13);
-% plot(time,T_val(:,1),time,T_val(:,2),time,T_val(:,3),time,T_val(:,4))
-% grid on;
-% legend('\xi_x_{ref}','\xi_y_{ref}','\kappa_{ref}','\theta_{ref}','Location','best');
-% xlabel('time[s]');ylabel('$\frac{d}{dt}\xi_{ref}$','Interpreter','latex'); 
-% title('shapedRef');
+%% 2. solve kappa equation
+KMap = valMap(:,:,3);                                        % get kappa map
+lKMap = log(KMap);                                            % make log scale map
+lKMap(~isfinite(lKMap))=0;
+
+rlKMap = lKMap.*BMap;                                      % make log scale map
+
+lnkappa = solve_Mapping(lKMap,Bpmat);          % solve linear equation
+slnkappa = solve_Mapping(lKMap,Spmat);          % solve linear equation
+nlnkappa = solve_Mapping(lKMap,nMap);          % solve linear equation
+
+
+T_val(2:n,3) = exp(lnkappa);                                 % kappa 
+T_val(1,3) = 1;                                 % kappa 
+sT_val(2:n,3) = exp(slnkappa);                                 % kappa 
+sT_val(1,3) = 1;                                 % kappa 
+nT_val(2:n,3) = exp(nlnkappa);                                 % kappa 
+nT_val(1,3) = 1;                                 % kappa 
+
+
+figure(7);
+plot(time,T_val(:,3));
+xlabel('time [s]');
+ylabel('Scaling ');
+grid on;
+legend('Estimated Reference with FullMap')
+
+figure(8);
+plot(time,T_val(:,3),'b',time,nT_val(:,3),'r--');
+xlabel('time [s]');
+ylabel('Scaling ');
+grid on;
+legend('with Map Information','with Neighbor Information','Location','Best')
+
+
+figure(9);
+plot(time,T_val(:,3),'b',time,nT_val(:,3),'r--',time,sT_val(:,3),'m-.');
+xlabel('time [s]');
+ylabel('Scaling ');
+grid on;
+legend('with Map Information','with Neighbor Information','with weighted Map Information','Location','Best')
+
+%% 3. solve translation equation
+ TMap = valMap(:,:,1:2);
+ 
+ CtaMap2 = repmat(T_val(:,4),1,n);
+ KMap2 = repmat(T_val(:,3),1,n);
+ csMap = cosd(CtaMap2) .* KMap2;
+ snMap = sind(CtaMap2) .* KMap2;
+
+TrMapx = csMap .* TMap(:,:,1) + snMap.* TMap(:,:,2);
+TrMapy = -snMap .* TMap(:,:,1) + csMap.* TMap(:,:,2);
+
+T_val(2:n,1) = solve_Mapping(TrMapx,Bpmat);          % solve linear equation
+T_val(2:n,2) = solve_Mapping(TrMapy,Bpmat);          % solve linear equation
+sT_val(2:n,1) = solve_Mapping(TrMapx,Spmat);          % solve linear equation
+sT_val(2:n,2) = solve_Mapping(TrMapy,Spmat);          % solve linear equation
+nT_val(2:n,1) = solve_Mapping(TrMapx,nMap);          % solve linear equation
+nT_val(2:n,2) = solve_Mapping(TrMapy,nMap);          % solve linear equation
+
+
+figure(10);
+plot(time,T_val(:,2),'b',time,nT_val(:,2),'r--');
+xlabel('time [s]');
+ylabel('y axis translation [pix]');
+grid on;
+legend('with Map Information','with Neighbor Information','Location','Best')
+
+
+figure(11);
+plot(time,T_val(:,1),'b',time,nT_val(:,1),'r--');
+xlabel('time [s]');
+ylabel('x axis translation [pix]');
+grid on;
+legend('with Map Information','with Neighbor Information','Location','Best')
+
+figure(12);
+plot(time,T_val(:,2),'b',time,nT_val(:,2),'r--',time,sT_val(:,2),'m-.');
+xlabel('time [s]');
+ylabel('y axis translation [pix]');
+grid on;
+legend('with Map Information','with Neighbor Information','with weighted Map Information','Location','Best')
+
+figure(13);
+plot(time,T_val(:,1),'b',time,nT_val(:,1),'r--',time,sT_val(:,1),'m-.');
+xlabel('time [s]');
+ylabel('x axis translation [pix]');
+grid on;
+legend('with Map Information','with Neighbor Information','with weighted Map Information','Location','Best')
+

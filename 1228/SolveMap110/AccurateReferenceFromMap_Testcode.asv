@@ -9,7 +9,7 @@ GrandTruth(:,2) = - 0.2 *ndgrid(1:datalength,1);
 GrandTruth(:,3) =  1 + (50 - ndgrid(1:datalength,1))/500 ;
 GrandTruth(:,4) =  20 * sind( ndgrid(1:datalength,1)) ;
 
-Noise = 5 * randn(datalength,datalength,4)/100;
+Noise = 10 * randn(datalength,datalength,4)/100;
 scale = ndgrid(2:datalength,1);
 %% 積のデータだとうまくいかない
 data = GrandTruth(2:datalength,4);
@@ -55,7 +55,7 @@ grid on;
 legend('Estimated with Full Map','Estimated with Neighbor Information','Location','Best')
 ylabel('total error')
 
-%%
+%% 和のデータ なら 収束する
 nMap2 = Map+Noise(:,:,4);
 
 wMap=triu(ones(size(nMap)),1); %great map
@@ -84,7 +84,7 @@ legend('Estimated with Full Map','Estimated with Neighbor Information','Location
 xlabel('iteration')
 ylabel('absolute error')
 
-%%
+% 棒グラフ
 sum1 = (w-GrandTruth(2:datalength,4)).'*(w-GrandTruth(2:datalength,4));
 sum2 = (w2-GrandTruth(2:datalength,4)).'*(w2-GrandTruth(2:datalength,4));
 
@@ -95,6 +95,26 @@ legend('Estimated with Full Map','Estimated with Neighbor Information','Location
 ylabel('total error')
 
 
-%% 
-eig(A)
-eig(A2)
+% 固有値を見てみた。 当然正
+eig(A);
+eig(A2);
+
+%% 次はlog
+
+ data = GrandTruth(2:datalength,3);
+Map = remakemap_multiply(data);
+nMap = Map.*Noise(:,:,3);
+
+lnMap = log(nMap);
+lnMap(~isfinite(lnMap))=0;
+
+
+[v, A]=  solve_Mapping(nMap,wMap); % solved
+[v2 ,A2]=  solve_Mapping(nMap,wMap2); % solved
+
+figure(5);
+plot(scale,abs(w-GrandTruth(2:datalength,4)),'b',scale,abs(w2-GrandTruth(2:datalength,4)),'m-.');
+grid on;
+legend('Estimated with Full Map','Estimated with Neighbor Information','Location','Best')
+xlabel('iteration')
+ylabel('absolute error')
