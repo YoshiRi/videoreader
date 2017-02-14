@@ -1,11 +1,11 @@
 % need value map and weight map
 function [v A] = solve_Mapping(valMap,wMap)
 
-if size(valMap) ~= size(wMap)
-    display(size(valMap));
-    display(size(wMap));
-    error('size of Map must be the same size');
-end
+% if size(valMap) ~= size(wMap)
+%     display(size(valMap));
+%     display(size(wMap));
+%     error('size of Map must be the same size');
+% end
 
 % ŒW”s—ñA‚ÌŒvZ : Map‚æ‚è1‚Â¬‚³‚¢
 n=size(wMap,1);
