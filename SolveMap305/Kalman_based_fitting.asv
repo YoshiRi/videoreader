@@ -1,0 +1,72 @@
+% _n now _o old _new new
+%%
+
+% Get whole map
+load('Exp305FullMap.mat');
+
+%% Get value Map
+pmat = peakMap(:,:,1);                                      % get largest peak map 
+minpeak = 0.075;
+Bpmat = im2bw(pmat,minpeak);                        % Get binarized pmat
+Spmat = Bpmat.*pmat;                                       % Get sparse peakmat
+
+CtaMap = valMap(:,:,4);                                     % get theta map
+rCtaMap = CtaMap .* Bpmat;                              % get theta map
+
+figure(1);
+mesh(Spmat);
+
+figure(2);
+mesh(rCtaMap);
+
+%% input and out put
+n = size(Bpmat,1);
+uvec = diag(rCtaMap(1:n-1,2:n));
+yvec = rCtaMap(1,2:n).';
+xvec = zeros(size(uvec));
+Svec = zeros(size(uvec));
+
+length = size(find(yvec),1); %non-zero datalength
+
+%%
+% initial value 
+x0 = 0;
+S_i = 10000;
+% % system
+% D=1;E=1;F=1;G=1;H=1;
+% % カルマンゲインの更新
+%  K_n = S_o*H.'*(H*S_o*H.'+ V);
+% % 誤差共分散の更新
+%  S_n = S_o - K_n*H*S_o;
+% % 推定値の更新
+%  x_n = x_o + K_n*(y_n - H*x_o);
+% % フィルタ方程式
+%  x_new = D*x_n+E*u;
+% % 共分散行列のフィルタ方程式
+%  S_n = F*S_o *F.'+ G*W*G.';
+
+% noise scatter
+V = 0.01;
+W = 0.01;
+
+Gvec = ones(length,1);
+
+xlast=x0; Slast = S_i;
+for i = 1:length
+    % 予測Phase
+    xest = xlast + uvec(i);
+    Sest = Slast + W*Gvec(i);
+    % Calc Gain
+    K = Sest/(Sest + V);
+    % Correction
+    Scor = Sest - K*Sest;
+    xcor = xest + K*(yvec(i)-xest);
+    
+    xvec(i)=xcor;
+    Svec(i)=Scor;
+    xlast=xcor;
+    Slast=Scor;
+    
+end
+
+    
